@@ -1,4 +1,6 @@
 using System;
+using Castle.DynamicProxy;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using Microsoft.Practices.ServiceLocation;
@@ -22,17 +24,18 @@ namespace Tests {
         }
 
         private static void RegisterTestServices(IWindsorContainer container) {
-            container.AddComponent("LogTestClass", typeof(ILogTestClass), typeof(LogTestClass));
-            container.AddComponent("SystemTransactionTestProvider", typeof(ITransactionTestProvider),
-                                   typeof(SystemTransactionTestProvider));
-            container.AddComponent("NHibernateTransactionTestProvider", typeof(ITransactionTestProvider),
-                                   typeof(NHibernateTransactionTestProvider));
-            container.AddComponent("SystemUnitOfWorkTestProvider", typeof(ITransactionTestProvider),
-                                   typeof(SystemUnitOfWorkTestProvider));
-            container.AddComponent("NHibernateUnitOfWorkTestProvider", typeof(ITransactionTestProvider),
-                                   typeof(NHibernateUnitOfWorkTestProvider));
-            container.AddComponent("ExceptionHandlerTestClass", typeof(IExceptionHandlerTestClass),
-                                   typeof(ExceptionHandlerTestClass));
+            container.Register(Component.For<ILogTestClass>().ImplementedBy<LogTestClass>()
+                                .Named("LogTestClass"));
+            container.Register(Component.For<ITransactionTestProvider>().ImplementedBy<SystemTransactionTestProvider>()
+                                .Named("SystemTransactionTestProvider"));
+            container.Register(Component.For<ITransactionTestProvider>().ImplementedBy<NHibernateTransactionTestProvider>()
+                                .Named("NHibernateTransactionTestProvider"));
+            container.Register(Component.For<ITransactionTestProvider>().ImplementedBy<SystemUnitOfWorkTestProvider>()
+                                .Named("SystemUnitOfWorkTestProvider"));
+            container.Register(Component.For<ITransactionTestProvider>().ImplementedBy<NHibernateUnitOfWorkTestProvider>()
+                                .Named("NHibernateUnitOfWorkTestProvider"));
+            container.Register(Component.For<IExceptionHandlerTestClass>().ImplementedBy<ExceptionHandlerTestClass>()
+                                .Named("ExceptionHandlerTestClass"));
         }
     }
 }

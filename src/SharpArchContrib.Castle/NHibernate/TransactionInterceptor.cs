@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using Castle.Core.Interceptor;
+using Castle.DynamicProxy;
 using SharpArch.Data.NHibernate;
 using SharpArchContrib.Core;
 using SharpArchContrib.Core.Logging;

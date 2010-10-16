@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Castle.Core;
-using Castle.Core.Interceptor;
+using Castle.DynamicProxy;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
+using Castle.MicroKernel.Registration;
 using SharpArchContrib.Core;
 
 namespace SharpArchContrib.Castle {
@@ -19,7 +20,9 @@ namespace SharpArchContrib.Castle {
         }
 
         protected override void Init() {
-            Kernel.AddComponent(interceptorType.Name, typeof(IInterceptor), interceptorType, lifestyleType);
+            Kernel.Register(Component.For<IInterceptor>().ImplementedBy(interceptorType)
+                            .Named(interceptorType.Name).LifeStyle.Is(lifestyleType));
+            
             Kernel.ComponentRegistered += KernelComponentRegistered;
         }
 

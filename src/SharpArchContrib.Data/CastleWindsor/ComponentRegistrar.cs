@@ -1,4 +1,5 @@
 using System;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using SharpArchContrib.Core;
 using SharpArchContrib.Data.NHibernate;
@@ -15,8 +16,8 @@ namespace SharpArchContrib.Data.CastleWindsor {
 
             if (!container.Kernel.HasComponent("TransactionManager")) {
                 Core.CastleWindsor.ComponentRegistrar.AddComponentsTo(container);
-                container.AddComponent("TransactionManager", typeof(ITransactionManager),
-                                       transactionManagerType);
+                container.Register(Component.For<ITransactionManager>().ImplementedBy(transactionManagerType)
+                                    .Named("TransactionManager"));
             }
         }
     }

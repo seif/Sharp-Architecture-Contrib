@@ -1,3 +1,4 @@
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using SharpArchContrib.Core.Logging;
 
@@ -7,8 +8,10 @@ namespace SharpArchContrib.Core.CastleWindsor {
             ParameterCheck.ParameterRequired(container, "container");
 
             if (!container.Kernel.HasComponent("ExceptionLogger")) {
-                container.AddComponent("ExceptionLogger", typeof(IExceptionLogger), typeof(ExceptionLogger));
-                container.AddComponent("MethodLogger", typeof(IMethodLogger), typeof(MethodLogger));
+                container.Register(Component.For<IExceptionLogger>().ImplementedBy<ExceptionLogger>()
+                                    .Named("ExceptionLogger"));
+                container.Register(Component.For<IMethodLogger>().ImplementedBy<MethodLogger>()
+                                    .Named("MethodLogger"));
             }
         }
     }
