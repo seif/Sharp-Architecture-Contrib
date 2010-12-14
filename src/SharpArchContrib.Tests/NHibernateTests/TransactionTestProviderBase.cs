@@ -31,6 +31,10 @@ namespace Tests.NHibernateTests {
             DoCommit(testEntityName);
             CheckNumberOfEntities(1);
         }
+        
+        public virtual void DoRollbackViaNonDecoratedMethod(){
+            DoRollback();
+        }
 
         public virtual void DoCommit(string testEntityName) {
             InsertTestEntity(testEntityName);

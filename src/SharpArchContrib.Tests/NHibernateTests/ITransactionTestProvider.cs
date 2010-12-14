@@ -7,6 +7,7 @@ namespace Tests.NHibernateTests {
         string Name { get; }
         void InitTransactionManager();
         void CheckNumberOfEntities(int numberOfEntities);
+        void DoRollbackViaNonDecoratedMethod();
         void DoCommit(string testEntityName);
         void DoCommitSilenceException(string testEntityName);
         void DoRollback();

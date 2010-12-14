@@ -112,6 +112,14 @@ namespace Tests.NHibernateTests {
             return true;
         }
 
+        private bool PerformRollbackViaNonDecoratedMethod(ITransactionTestProvider transactionTestProvider){
+            transactionTestProvider.InitTransactionManager();
+            transactionTestProvider.DoRollbackViaNonDecoratedMethod();
+            transactionTestProvider.CheckNumberOfEntities(0);
+
+            return true;
+        }
+
         private bool PerformRollsbackOnException(ITransactionTestProvider transactionTestProvider) {
             transactionTestProvider.InitTransactionManager();
             transactionTestProvider.DoCommit(TestEntityName);
@@ -208,6 +216,11 @@ namespace Tests.NHibernateTests {
         [Test]
         public void Rollback() {
             PerformTest("Rollback", testProvider => PerformRollback(testProvider));
+        }
+
+        [Test]
+        public void RollbackViaNonDecoratedMethod(){
+            PerformTest("Rollback", testProvider => PerformRollbackViaNonDecoratedMethod(testProvider));
         }
 
         [Test]
