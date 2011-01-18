@@ -19,7 +19,7 @@ namespace SharpArchContrib.Castle
         public AttributeControlledFacilityBase(Type interceptorType, LifestyleType lifestyleType)
         {
             ParameterCheck.ParameterRequired(interceptorType, "interceptorType");
-
+            
             this.interceptorType = interceptorType;
             this.lifestyleType = lifestyleType;
         }
@@ -28,6 +28,12 @@ namespace SharpArchContrib.Castle
 
         protected override void Init()
         {
+            if (!Kernel.HasComponent(typeof(IAttributeExtractor<>)))
+            {
+                this.Kernel.AddComponent(
+                    "AttributeExtractor", typeof(IAttributeExtractor<>), typeof(AttributeExtractor<>));
+            }
+
             this.Kernel.AddComponent(
                 this.interceptorType.Name, typeof(IInterceptor), this.interceptorType, this.lifestyleType);
             this.Kernel.ComponentRegistered += this.KernelComponentRegistered;
@@ -48,5 +54,6 @@ namespace SharpArchContrib.Castle
         {
             this.AddInterceptorIfNeeded(handler, this.GetAttributes(handler));
         }
+
     }
 }

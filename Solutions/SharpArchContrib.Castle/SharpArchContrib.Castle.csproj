@@ -108,7 +108,11 @@
     <Compile Include="..\..\Common\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AttributeBasedIntecptorSelector.cs" />
+    <Compile Include="AttributeExtractor.cs" />
     <Compile Include="CastleWindsor\ComponentRegistrar.cs" />
+    <Compile Include="IAttributeExtractor.cs" />
+    <Compile Include="AttributeBasedInterceptor.cs" />
     <Compile Include="Logging\ExceptionHandlerAttribute.cs" />
     <Compile Include="Logging\ExceptionHandlerFacility.cs" />
     <Compile Include="Logging\ExceptionHandlerInterceptor.cs" />

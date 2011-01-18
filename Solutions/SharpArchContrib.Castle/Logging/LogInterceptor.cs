@@ -1,24 +1,29 @@
 namespace SharpArchContrib.Castle.Logging
 {
     using System;
-
+    
     using global::Castle.Core.Interceptor;
 
     using SharpArchContrib.Core;
     using SharpArchContrib.Core.Logging;
 
-    public class LogInterceptor : IInterceptor
+    public class LogInterceptor : AttributeBasedInterceptor<LogAttribute>
     {
         private readonly IMethodLogger methodLogger;
 
-        public LogInterceptor(IMethodLogger methodLogger)
+        private readonly IAttributeExtractor<LogAttribute> attributeExtractor;
+
+        public LogInterceptor(IMethodLogger methodLogger, IAttributeExtractor<LogAttribute> attributeExtractor)
         {
             ParameterCheck.ParameterRequired(methodLogger, "methodLogger");
+            ParameterCheck.ParameterRequired(attributeExtractor, "attributeExtractor");
 
             this.methodLogger = methodLogger;
+            this.attributeExtractor = attributeExtractor;
         }
+        
 
-        public void Intercept(IInvocation invocation)
+        public override void Intercept(IInvocation invocation)
         {
             var methodInfo = invocation.MethodInvocationTarget;
             if (methodInfo == null)
@@ -26,35 +31,26 @@ namespace SharpArchContrib.Castle.Logging
                 methodInfo = invocation.Method;
             }
 
-            // we take the most permissive log settings from the attributes we find
-            // If there is at least one attribute, the call gets wrapped with a transaction
-            var assemblyLogAttributes =
-                (LogAttribute[])methodInfo.ReflectedType.Assembly.GetCustomAttributes(typeof(LogAttribute), false);
-            var classLogAttributes =
-                (LogAttribute[])methodInfo.ReflectedType.GetCustomAttributes(typeof(LogAttribute), false);
-            var methodLogAttributes = (LogAttribute[])methodInfo.GetCustomAttributes(typeof(LogAttribute), false);
+            LogAttribute[] assemblyLogAttributes = this.attributeExtractor.GetAssemblyAttributes(methodInfo);
+            LogAttribute[] classLogAttributes = this.attributeExtractor.GetClassAttributes(methodInfo);
+            LogAttribute[] methodLogAttributes = this.attributeExtractor.GetMethodAttributes(methodInfo);
 
-            if (assemblyLogAttributes.Length == 0 && classLogAttributes.Length == 0 && methodLogAttributes.Length == 0)
+            var logAttributeSettings = this.GetLoggingLevels(
+                assemblyLogAttributes, classLogAttributes, methodLogAttributes);
+            
+            this.methodLogger.LogEntry(methodInfo, invocation.Arguments, logAttributeSettings.EntryLevel);
+            try
             {
                 invocation.Proceed();
             }
-            else
+            catch (Exception err)
             {
-                var logAttributeSettings = this.GetLoggingLevels(
-                    assemblyLogAttributes, classLogAttributes, methodLogAttributes);
-                this.methodLogger.LogEntry(methodInfo, invocation.Arguments, logAttributeSettings.EntryLevel);
-                try
-                {
-                    invocation.Proceed();
-                }
-                catch (Exception err)
-                {
-                    this.methodLogger.LogException(methodInfo, err, logAttributeSettings.ExceptionLevel);
-                    throw;
-                }
-
-                this.methodLogger.LogSuccess(methodInfo, invocation.ReturnValue, logAttributeSettings.SuccessLevel);
+                this.methodLogger.LogException(methodInfo, err, logAttributeSettings.ExceptionLevel);
+                throw;
             }
+
+            this.methodLogger.LogSuccess(methodInfo, invocation.ReturnValue, logAttributeSettings.SuccessLevel);
+
         }
 
         private LogAttributeSettings GetLoggingLevels(
