@@ -24,8 +24,6 @@ namespace SharpArchContrib.Castle
             this.lifestyleType = lifestyleType;
         }
 
-        protected abstract List<Attribute> GetAttributes(IHandler handler);
-
         protected override void Init()
         {
             this.Kernel.AddComponent(
@@ -33,20 +31,10 @@ namespace SharpArchContrib.Castle
             this.Kernel.ComponentRegistered += this.KernelComponentRegistered;
         }
 
-        private bool AddInterceptorIfNeeded(IHandler handler, List<Attribute> attributes)
-        {
-            foreach (var attribute in attributes)
-            {
-                handler.ComponentModel.Interceptors.Add(new InterceptorReference(this.interceptorType.Name));
-                return true;
-            }
-
-            return false;
-        }
-
         private void KernelComponentRegistered(string key, IHandler handler)
         {
-            this.AddInterceptorIfNeeded(handler, this.GetAttributes(handler));
+            //TODO how do we hook up the hook???
+            handler.ComponentModel.Interceptors.Add(new InterceptorReference(this.interceptorType.Name));
         }
     }
 }

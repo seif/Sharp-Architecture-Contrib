@@ -28,54 +28,43 @@ namespace SharpArchContrib.Castle.Logging
 
             // we take the settings from the first attribute we find searching method first
             // If there is at least one attribute, the call gets wrapped with an exception handler
-            var assemblyAttributes =
-                (ExceptionHandlerAttribute[])
-                methodInfo.ReflectedType.Assembly.GetCustomAttributes(typeof(ExceptionHandlerAttribute), false);
-            var classAttributes =
-                (ExceptionHandlerAttribute[])
-                methodInfo.ReflectedType.GetCustomAttributes(typeof(ExceptionHandlerAttribute), false);
-            var methodAttributes =
-                (ExceptionHandlerAttribute[])methodInfo.GetCustomAttributes(typeof(ExceptionHandlerAttribute), false);
+            var assemblyAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetAssemblyLevelAttributes(methodInfo.ReflectedType);
+            var classAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetClassLevelAttributes(methodInfo.ReflectedType);
+            var methodAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetMethodLevelAttributes(methodInfo);
 
-            if (assemblyAttributes.Length == 0 && classAttributes.Length == 0 && methodAttributes.Length == 0)
+            var exceptionHandlerAttributeSettings = this.GetExceptionHandlerSettings(
+                assemblyAttributes, classAttributes, methodAttributes);
+            try
             {
                 invocation.Proceed();
             }
-            else
+            catch (Exception err)
             {
-                var exceptionHandlerAttributeSettings = this.GetExceptionHandlerSettings(
-                    assemblyAttributes, classAttributes, methodAttributes);
-                try
+                this.exceptionLogger.LogException(
+                    err, exceptionHandlerAttributeSettings.IsSilent, methodInfo.ReflectedType);
+                if (exceptionHandlerAttributeSettings.IsSilent)
                 {
-                    invocation.Proceed();
-                }
-                catch (Exception err)
-                {
-                    this.exceptionLogger.LogException(
-                        err, exceptionHandlerAttributeSettings.IsSilent, methodInfo.ReflectedType);
-                    if (exceptionHandlerAttributeSettings.IsSilent)
+                    if (exceptionHandlerAttributeSettings.ExceptionType == null ||
+                        exceptionHandlerAttributeSettings.ExceptionType == err.GetType())
                     {
-                        if (exceptionHandlerAttributeSettings.ExceptionType == null ||
-                            exceptionHandlerAttributeSettings.ExceptionType == err.GetType())
-                        {
-                            invocation.ReturnValue = exceptionHandlerAttributeSettings.ReturnValue;
-                        }
-                        else
-                        {
-                            throw;
-                        }
+                        invocation.ReturnValue = exceptionHandlerAttributeSettings.ReturnValue;
                     }
                     else
                     {
                         throw;
                     }
                 }
+                else
+                {
+                    throw;
+                }
             }
+
         }
 
         private ExceptionHandlerAttributeSettings GetExceptionHandlerSettings(
-            ExceptionHandlerAttribute[] assemblyAttributes, 
-            ExceptionHandlerAttribute[] classAttributes, 
+            ExceptionHandlerAttribute[] assemblyAttributes,
+            ExceptionHandlerAttribute[] classAttributes,
             ExceptionHandlerAttribute[] methodAttributes)
         {
             if (methodAttributes.Length > 0)
