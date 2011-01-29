@@ -8,5 +8,10 @@ namespace SharpArchContrib.Castle.Logging
             : base(typeof(LogInterceptor), LifestyleType.Singleton)
         {
         }
+
+        protected override void RegisterModelInterceptorsSelector()
+        {
+            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<LogAttribute>());
+        }
     }
 }

@@ -8,5 +8,11 @@ namespace SharpArchContrib.Castle.NHibernate
             : base(typeof(UnitOfWorkInterceptor), LifestyleType.Transient)
         {
         }
+
+
+        protected override void RegisterModelInterceptorsSelector()
+        {
+            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<UnitOfWorkAttribute>());
+        }
     }
 }

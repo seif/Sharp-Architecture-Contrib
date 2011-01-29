@@ -7,7 +7,9 @@ namespace SharpArchContrib.Castle
     using global::Castle.DynamicProxy;
     using global::Castle.MicroKernel;
     using global::Castle.MicroKernel.Facilities;
+    using global::Castle.MicroKernel.Registration;
 
+    using SharpArchContrib.Castle.Logging;
     using SharpArchContrib.Core;
 
     public abstract class AttributeControlledFacilityBase : AbstractFacility
@@ -19,22 +21,23 @@ namespace SharpArchContrib.Castle
         public AttributeControlledFacilityBase(Type interceptorType, LifestyleType lifestyleType)
         {
             ParameterCheck.ParameterRequired(interceptorType, "interceptorType");
-
+        
             this.interceptorType = interceptorType;
             this.lifestyleType = lifestyleType;
         }
 
         protected override void Init()
         {
-            this.Kernel.AddComponent(
-                this.interceptorType.Name, typeof(IInterceptor), this.interceptorType, this.lifestyleType);
-            this.Kernel.ComponentRegistered += this.KernelComponentRegistered;
+            this.Kernel.Register(Component.For<IInterceptor>().LifeStyle.Is(this.lifestyleType).ImplementedBy(this.interceptorType).Named(this.interceptorType.Name));
+            this.RegisterModelInterceptorsSelector();
         }
 
-        private void KernelComponentRegistered(string key, IHandler handler)
+        protected abstract void RegisterModelInterceptorsSelector();
+
+        protected virtual void KernelComponentRegistered(string key, IHandler handler)
         {
-            //TODO how do we hook up the hook???
             handler.ComponentModel.Interceptors.Add(new InterceptorReference(this.interceptorType.Name));
         }
+
     }
 }

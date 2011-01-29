@@ -20,19 +20,15 @@ namespace SharpArchContrib.Castle.Logging
 
         public void Intercept(IInvocation invocation)
         {
-            var methodInfo = invocation.MethodInvocationTarget;
-            if (methodInfo == null)
-            {
-                methodInfo = invocation.Method;
-            }
+            var methodInfo = invocation.MethodInvocationTarget ?? invocation.Method;
 
             // we take the settings from the first attribute we find searching method first
             // If there is at least one attribute, the call gets wrapped with an exception handler
-            var assemblyAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetAssemblyLevelAttributes(methodInfo.ReflectedType);
-            var classAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetClassLevelAttributes(methodInfo.ReflectedType);
+            var assemblyAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetAssemblyLevelAttributes(methodInfo.ReflectedType.Assembly);
+            var classAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetTypeLevelAttributes(methodInfo.ReflectedType);
             var methodAttributes = AttributeHelper<ExceptionHandlerAttribute>.GetMethodLevelAttributes(methodInfo);
 
-            var exceptionHandlerAttributeSettings = this.GetExceptionHandlerSettings(
+            var exceptionHandlerAttributeSettings = GetExceptionHandlerSettings(
                 assemblyAttributes, classAttributes, methodAttributes);
             try
             {
@@ -59,10 +55,9 @@ namespace SharpArchContrib.Castle.Logging
                     throw;
                 }
             }
-
         }
 
-        private ExceptionHandlerAttributeSettings GetExceptionHandlerSettings(
+        private static ExceptionHandlerAttributeSettings GetExceptionHandlerSettings(
             ExceptionHandlerAttribute[] assemblyAttributes,
             ExceptionHandlerAttribute[] classAttributes,
             ExceptionHandlerAttribute[] methodAttributes)

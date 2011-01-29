@@ -6,7 +6,6 @@ namespace Tests.SharpArchContrib.Castle.Logging
 
     public class LogTestClass : ILogTestClass
     {
-        [Log]
         public int Method(string name, int val)
         {
             return val;

@@ -8,5 +8,10 @@ namespace SharpArchContrib.Castle.NHibernate
             : base(typeof(TransactionInterceptor), LifestyleType.Transient)
         {
         }
+
+        protected override void RegisterModelInterceptorsSelector()
+        {
+            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<TransactionAttribute>());
+        }
     }
 }

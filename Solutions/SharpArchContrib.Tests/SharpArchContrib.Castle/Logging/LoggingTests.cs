@@ -5,6 +5,8 @@
 
     using global::Castle.DynamicProxy;
 
+    using global::SharpArchContrib.Castle;
+
     using Microsoft.Practices.ServiceLocation;
 
     using NUnit.Framework;
@@ -43,6 +45,8 @@
             var generator = new ProxyGenerator();
             var testLogger2 =
                 generator.CreateClassProxy<TestLogger2>(
+                    new ProxyGenerationOptions(
+                        new AttributeBasedHook<LogAttribute>()),
                     ServiceLocator.Current.GetInstance<IInterceptor>("LogInterceptor"));
             testLogger2.GetMessage("message1");
             testLogger2.GetMessageVirtual("message2");

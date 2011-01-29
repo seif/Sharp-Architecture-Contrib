@@ -1,6 +1,7 @@
 namespace SharpArchContrib.Castle.Logging
 {
     using System;
+    
 
     using global::Castle.DynamicProxy;
 
@@ -17,8 +18,9 @@ namespace SharpArchContrib.Castle.Logging
 
             this.methodLogger = methodLogger;
         }
+        
 
-        public void Intercept(IInvocation invocation)
+        public virtual void Intercept(IInvocation invocation)
         {
             var methodInfo = invocation.MethodInvocationTarget;
             if (methodInfo == null)
@@ -26,14 +28,13 @@ namespace SharpArchContrib.Castle.Logging
                 methodInfo = invocation.Method;
             }
 
-            // we take the most permissive log settings from the attributes we find
-            // If there is at least one attribute, the call gets wrapped with a transaction
-            var assemblyAttributes = AttributeHelper<LogAttribute>.GetAssemblyLevelAttributes(methodInfo.ReflectedType);
-            var classAttributes = AttributeHelper<LogAttribute>.GetClassLevelAttributes(methodInfo.ReflectedType);
-            var methodAttributes = AttributeHelper<LogAttribute>.GetMethodLevelAttributes(methodInfo);
+            LogAttribute[] assemblyLogAttributes = AttributeHelper<LogAttribute>.GetAssemblyLevelAttributes(methodInfo.ReflectedType.Assembly);
+            LogAttribute[] classLogAttributes = AttributeHelper<LogAttribute>.GetTypeLevelAttributes(methodInfo.ReflectedType);
+            LogAttribute[] methodLogAttributes = AttributeHelper<LogAttribute>.GetMethodLevelAttributes(methodInfo);
 
             var logAttributeSettings = this.GetLoggingLevels(
-                    assemblyAttributes, classAttributes, methodAttributes);
+                assemblyLogAttributes, classLogAttributes, methodLogAttributes);
+            
             this.methodLogger.LogEntry(methodInfo, invocation.Arguments, logAttributeSettings.EntryLevel);
             try
             {
