@@ -4,10 +4,14 @@ namespace SharpArchContrib.Castle.NHibernate
 
     public class TransactionFacility : AttributeControlledFacilityBase<TransactionAttribute, TransactionInterceptor>
     {
-        // TODO make sure the interceptor gets added to run first!
         public TransactionFacility()
             : base(LifestyleType.Transient)
         {
         }
-   }
+
+        protected override void AddContributor()
+        {
+            this.Kernel.ComponentModelBuilder.AddContributor(new AddFirstComponentModelContruction<TransactionAttribute, TransactionInterceptor>());
+        }
+    }
 }

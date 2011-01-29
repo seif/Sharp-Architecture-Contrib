@@ -8,5 +8,10 @@ namespace SharpArchContrib.Castle.NHibernate
             : base(LifestyleType.Transient)
         {
         }
+
+        protected override void AddContributor()
+        {
+            this.Kernel.ComponentModelBuilder.AddContributor(new AddFirstComponentModelContruction<UnitOfWorkAttribute, UnitOfWorkInterceptor>());
+        }
     }
 }

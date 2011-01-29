@@ -19,8 +19,13 @@
             {
                 var proxyOptions = ProxyUtil.ObtainProxyOptions(model, true);
                 proxyOptions.Hook = new InstanceReference<IProxyGenerationHook>(new AttributeControlledHook<TAttribute>());
-                model.Interceptors.Add(new InterceptorReference(typeof(TInterceptor)));
+                AddInterceptor(model);
             }
+        }
+
+        protected virtual void AddInterceptor(ComponentModel model)
+        {
+            model.Interceptors.Add(new InterceptorReference(typeof(TInterceptor)));
         }
     }
 }
