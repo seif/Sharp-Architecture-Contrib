@@ -12,32 +12,31 @@ namespace SharpArchContrib.Castle
     using SharpArchContrib.Castle.Logging;
     using SharpArchContrib.Core;
 
-    public abstract class AttributeControlledFacilityBase : AbstractFacility
+    public abstract class AttributeControlledFacilityBase<TAttribute, TInterceptor> : AbstractFacility
+        where TInterceptor : IInterceptor
+        where TAttribute : Attribute
     {
-        private readonly Type interceptorType;
-
         private readonly LifestyleType lifestyleType;
 
-        public AttributeControlledFacilityBase(Type interceptorType, LifestyleType lifestyleType)
+        public AttributeControlledFacilityBase(LifestyleType lifestyleType)
         {
-            ParameterCheck.ParameterRequired(interceptorType, "interceptorType");
-        
-            this.interceptorType = interceptorType;
             this.lifestyleType = lifestyleType;
         }
 
         protected override void Init()
         {
-            this.Kernel.Register(Component.For<IInterceptor>().LifeStyle.Is(this.lifestyleType).ImplementedBy(this.interceptorType).Named(this.interceptorType.Name));
-            this.RegisterModelInterceptorsSelector();
+            this.RegisterInterceptor();
+            this.AddContributor();
         }
 
-        protected abstract void RegisterModelInterceptorsSelector();
-
-        protected virtual void KernelComponentRegistered(string key, IHandler handler)
+        protected virtual void RegisterInterceptor()
         {
-            handler.ComponentModel.Interceptors.Add(new InterceptorReference(this.interceptorType.Name));
+            this.Kernel.Register(Component.For<TInterceptor>().LifeStyle.Is(this.lifestyleType));
         }
 
+        protected virtual void AddContributor()
+        {
+            this.Kernel.ComponentModelBuilder.AddContributor(new AttributeControlledComponentModelConstruction<TAttribute, TInterceptor>());
+        }
     }
 }

@@ -6,16 +6,11 @@ namespace SharpArchContrib.Castle.Logging
     using global::Castle.Core;
     using global::Castle.MicroKernel;
 
-    public class ExceptionHandlerFacility : AttributeControlledFacilityBase
+    public class ExceptionHandlerFacility : AttributeControlledFacilityBase<ExceptionHandlerAttribute, ExceptionHandlerInterceptor>
     {
         public ExceptionHandlerFacility()
-            : base(typeof(ExceptionHandlerInterceptor), LifestyleType.Singleton)
+            : base(LifestyleType.Singleton)
         {
-        }
-
-        protected override void RegisterModelInterceptorsSelector()
-        {
-            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<ExceptionHandlerAttribute>());
         }
     }
 }

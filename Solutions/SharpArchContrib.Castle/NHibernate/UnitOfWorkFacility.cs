@@ -2,17 +2,11 @@ namespace SharpArchContrib.Castle.NHibernate
 {
     using global::Castle.Core;
 
-    public class UnitOfWorkFacility : AttributeControlledFacilityBase
+    public class UnitOfWorkFacility : AttributeControlledFacilityBase<UnitOfWorkAttribute, UnitOfWorkInterceptor>
     {
         public UnitOfWorkFacility()
-            : base(typeof(UnitOfWorkInterceptor), LifestyleType.Transient)
+            : base(LifestyleType.Transient)
         {
-        }
-
-
-        protected override void RegisterModelInterceptorsSelector()
-        {
-            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<UnitOfWorkAttribute>());
         }
     }
 }

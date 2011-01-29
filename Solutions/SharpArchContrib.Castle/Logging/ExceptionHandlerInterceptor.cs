@@ -2,6 +2,8 @@ namespace SharpArchContrib.Castle.Logging
 {
     using System;
 
+    using global::Castle.Core;
+    using global::Castle.Core.Interceptor;
     using global::Castle.DynamicProxy;
 
     using SharpArchContrib.Core;

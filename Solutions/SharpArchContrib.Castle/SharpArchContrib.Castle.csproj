@@ -96,7 +96,7 @@
     <Compile Include="..\..\Common\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AttributeBasedIntecptorSelector.cs" />
+    <Compile Include="AttributeControlledComponentModelConstruction.cs" />
     <Compile Include="AttributeHelper.cs" />
     <Compile Include="CastleWindsor\ComponentRegistrar.cs" />
     <Compile Include="Logging\ExceptionHandlerAttribute.cs" />
@@ -113,7 +113,7 @@
     <Compile Include="NHibernate\UnitOfWorkFacility.cs" />
     <Compile Include="NHibernate\UnitOfWorkInterceptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AttributeBasedHook.cs" />
+    <Compile Include="AttributeControlledHook.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpArchContrib.Core\SharpArchContrib.Core.csproj">

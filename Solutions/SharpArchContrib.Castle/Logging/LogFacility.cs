@@ -2,16 +2,11 @@ namespace SharpArchContrib.Castle.Logging
 {
     using global::Castle.Core;
 
-    public class LogFacility : AttributeControlledFacilityBase
+    public class LogFacility : AttributeControlledFacilityBase<LogAttribute, LogInterceptor>
     {
         public LogFacility()
-            : base(typeof(LogInterceptor), LifestyleType.Singleton)
+            : base(LifestyleType.Singleton)
         {
-        }
-
-        protected override void RegisterModelInterceptorsSelector()
-        {
-            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<LogAttribute>());
         }
     }
 }

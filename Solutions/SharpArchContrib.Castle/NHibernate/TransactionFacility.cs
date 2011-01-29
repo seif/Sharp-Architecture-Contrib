@@ -2,16 +2,12 @@ namespace SharpArchContrib.Castle.NHibernate
 {
     using global::Castle.Core;
 
-    public class TransactionFacility : AttributeControlledFacilityBase
+    public class TransactionFacility : AttributeControlledFacilityBase<TransactionAttribute, TransactionInterceptor>
     {
+        // TODO make sure the interceptor gets added to run first!
         public TransactionFacility()
-            : base(typeof(TransactionInterceptor), LifestyleType.Transient)
+            : base(LifestyleType.Transient)
         {
         }
-
-        protected override void RegisterModelInterceptorsSelector()
-        {
-            this.Kernel.ProxyFactory.AddInterceptorSelector(new AttributeBasedInteceptorSelector<TransactionAttribute>());
-        }
-    }
+   }
 }

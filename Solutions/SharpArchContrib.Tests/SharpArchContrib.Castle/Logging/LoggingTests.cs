@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Threading;
 
     using global::Castle.DynamicProxy;
 
@@ -19,24 +20,42 @@
     [TestFixture]
     public class LoggingTests
     {
+        string logPath;
+
+        [SetUp]
+        public void Setup()
+        {
+            this.logPath = Path.GetFullPath(@"TestData/Tests.SharpArchContrib.Castle.Logging.DebugLevelTests.DebugLevel.log");
+        }
+
         [Test]
         public void LoggingDebugEntryWorks()
         {
             this.TryLogging();
+            File.Exists(this.logPath).ShouldBeTrue();
+            string log = GetLog();
+            log.IndexOf("testClass.Method logged").ShouldBeGreaterThan(0);
+            log.IndexOf("testClass.VirtualMethod Logged").ShouldBeGreaterThan(0);
+            log.IndexOf("testClass.NotLogged should not log").ShouldEqual(-1);
+        }
+
+        [Test]
+        public void LoggingViaProxyWorks()
+        {
             this.TryLoggingViaProxy();
-            var logPath =
-                Path.GetFullPath(@"TestData/Tests.SharpArchContrib.Castle.Logging.DebugLevelTests.DebugLevel.log");
-            File.Exists(logPath).ShouldBeTrue();
-            var debugLogInfo = new FileInfo(logPath);
-            debugLogInfo.Length.ShouldBeGreaterThan(0);
+            File.Exists(this.logPath).ShouldBeTrue();
+            var log = this.GetLog();
+            log.IndexOf("testLogger2.GetMessage not logged").ShouldEqual(-1);// non virtual can't be intercepted.
+            log.IndexOf("testLogger2.GetMessageVirtual logged").ShouldBeGreaterThan(0);
+            log.IndexOf("testLogger2.GetMessage not logged").ShouldEqual(-1);
         }
 
         private void TryLogging()
         {
             var testClass = ServiceLocator.Current.GetInstance<ILogTestClass>();
-            testClass.Method("Tom", 1);
-            testClass.VirtualMethod("Bill", 2);
-            testClass.NotLogged("Philly", 3);
+            testClass.Method("testClass.Method logged", 1);
+            testClass.VirtualMethod("testClass.VirtualMethod Logged", 2);
+            testClass.NotLogged("testClass.NotLogged should not log", 3);
             Assert.Throws<Exception>(() => testClass.ThrowException());
         }
 
@@ -46,11 +65,20 @@
             var testLogger2 =
                 generator.CreateClassProxy<TestLogger2>(
                     new ProxyGenerationOptions(
-                        new AttributeBasedHook<LogAttribute>()),
-                    ServiceLocator.Current.GetInstance<IInterceptor>("LogInterceptor"));
-            testLogger2.GetMessage("message1");
-            testLogger2.GetMessageVirtual("message2");
-            testLogger2.GetMessageNotLogged("message3");
+                        new AttributeControlledHook<LogAttribute>()),
+                    ServiceLocator.Current.GetInstance<LogInterceptor>());
+            testLogger2.GetMessage("testLogger2.GetMessage not logged");
+            testLogger2.GetMessageVirtual("testLogger2.GetMessageVirtual logged");
+            testLogger2.GetMessageNotLogged("testLogger2.GetMessage not logged");
+        }
+
+
+        private string GetLog()
+        {
+            File.Copy(this.logPath, this.logPath + "1");
+            var log = File.ReadAllText(this.logPath + "1");
+            File.Delete(this.logPath + 1);
+            return log;
         }
 
         public class TestLogger2

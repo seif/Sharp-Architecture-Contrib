@@ -35,16 +35,18 @@
 
         public static bool ShouldInterceptMethod(MethodInfo methodInfo)
         {
-            return GetAssemblyLevelAttributes(methodInfo.ReflectedType.Assembly).Any() ||
-                   GetTypeLevelAttributes(methodInfo.ReflectedType).Any() ||
-                   GetMethodLevelAttributes(methodInfo).Any();
+            bool shouldInterceptMethod = GetAssemblyLevelAttributes(methodInfo.ReflectedType.Assembly).Any() ||
+                                         GetTypeLevelAttributes(methodInfo.ReflectedType).Any() ||
+                                         GetMethodLevelAttributes(methodInfo).Any();
+            return shouldInterceptMethod;
         }
 
         public static bool ShouldInterceptType(Type service)
         {
-            return GetAssemblyLevelAttributes(service.Assembly).Any() || 
-                   GetTypeLevelAttributes(service).Any() ||
-                   GetMethodLevelAttributesForType(service).Any();
+            bool shouldInterceptType = GetAssemblyLevelAttributes(service.Assembly).Any() || 
+                                       GetTypeLevelAttributes(service).Any() ||
+                                       GetMethodLevelAttributesForType(service).Any();
+            return shouldInterceptType;
         }
     }
 }
