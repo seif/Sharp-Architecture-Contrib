@@ -11,7 +11,7 @@ namespace SharpArchContrib.Castle.NHibernate
 
         protected override void AddContributor()
         {
-            this.Kernel.ComponentModelBuilder.AddContributor(new AddFirstComponentModelContruction<TransactionAttribute, TransactionInterceptor>());
+            this.Kernel.ComponentModelBuilder.AddContributor(new AddLastComponentModelContruction<TransactionAttribute, TransactionInterceptor>());
         }
     }
 }

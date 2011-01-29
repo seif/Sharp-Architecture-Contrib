@@ -96,7 +96,7 @@
     <Compile Include="..\..\Common\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AddFirstComponentModelContruction.cs" />
+    <Compile Include="AddLastComponentModelContruction.cs" />
     <Compile Include="AttributeControlledComponentModelConstruction.cs" />
     <Compile Include="AttributeHelper.cs" />
     <Compile Include="CastleWindsor\ComponentRegistrar.cs" />

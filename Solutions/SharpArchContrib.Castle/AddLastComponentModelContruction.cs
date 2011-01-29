@@ -5,13 +5,13 @@
     using global::Castle.Core;
     using global::Castle.DynamicProxy;
 
-    public class AddFirstComponentModelContruction<TAttribute, TInterceptor> : AttributeControlledComponentModelConstruction<TAttribute, TInterceptor>
+    public class AddLastComponentModelContruction<TAttribute, TInterceptor> : AttributeControlledComponentModelConstruction<TAttribute, TInterceptor>
         where TInterceptor : IInterceptor 
         where TAttribute : Attribute
     {
         protected override void AddInterceptor(ComponentModel model)
         {
-            model.Interceptors.AddFirst(new InterceptorReference(typeof(TInterceptor)));
+            model.Interceptors.AddLast(new InterceptorReference(typeof(TInterceptor)));
         }
     }
 }
