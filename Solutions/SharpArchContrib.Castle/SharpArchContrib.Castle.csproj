@@ -96,25 +96,28 @@
     <Compile Include="..\..\Common\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AddLastComponentModelContruction.cs" />
-    <Compile Include="AttributeControlledComponentModelConstruction.cs" />
+    <Compile Include="AttributeControlledInspector.cs" />
     <Compile Include="AttributeHelper.cs" />
+    <Compile Include="AttributeSettingsStorage.cs" />
     <Compile Include="CastleWindsor\ComponentRegistrar.cs" />
     <Compile Include="Logging\ExceptionHandlerAttribute.cs" />
+    <Compile Include="Logging\ExceptionHandlerComponentInspector.cs" />
     <Compile Include="Logging\ExceptionHandlerFacility.cs" />
     <Compile Include="Logging\ExceptionHandlerInterceptor.cs" />
     <Compile Include="Logging\LogAttribute.cs" />
+    <Compile Include="Logging\LogComponentInspector.cs" />
     <Compile Include="Logging\LogFacility.cs" />
     <Compile Include="Logging\LogInterceptor.cs" />
     <Compile Include="AttributeControlledFacilityBase.cs" />
+    <Compile Include="NHibernate\TransactionComponentInspector.cs" />
     <Compile Include="NHibernate\TransactionInterceptor.cs" />
     <Compile Include="NHibernate\TransactionFacility.cs" />
     <Compile Include="NHibernate\TransactionAttribute.cs" />
     <Compile Include="NHibernate\UnitOfWorkAttribute.cs" />
+    <Compile Include="NHibernate\UnitOfWorkComponentInspector.cs" />
     <Compile Include="NHibernate\UnitOfWorkFacility.cs" />
     <Compile Include="NHibernate\UnitOfWorkInterceptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="AttributeControlledHook.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SharpArchContrib.Core\SharpArchContrib.Core.csproj">

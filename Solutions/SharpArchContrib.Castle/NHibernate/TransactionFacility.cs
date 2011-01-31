@@ -1,8 +1,11 @@
 namespace SharpArchContrib.Castle.NHibernate
 {
     using global::Castle.Core;
+    using global::Castle.MicroKernel.ModelBuilder;
 
-    public class TransactionFacility : AttributeControlledFacilityBase<TransactionAttribute, TransactionInterceptor>
+    using SharpArchContrib.Data.NHibernate;
+
+    public class TransactionFacility : AttributeControlledFacilityBase<TransactionAttributeSettings, TransactionInterceptor>
     {
         public TransactionFacility()
             : base(LifestyleType.Transient)
@@ -11,7 +14,7 @@ namespace SharpArchContrib.Castle.NHibernate
 
         protected override void AddContributor()
         {
-            this.Kernel.ComponentModelBuilder.AddContributor(new AddLastComponentModelContruction<TransactionAttribute, TransactionInterceptor>());
+            this.Kernel.ComponentModelBuilder.AddContributor(new TransactionComponentInspector<TransactionAttribute>(typeof(TransactionInterceptor)));
         }
     }
 }

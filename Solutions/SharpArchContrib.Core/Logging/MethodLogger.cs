@@ -20,7 +20,7 @@ namespace SharpArchContrib.Core.Logging
         public void LogEntry(MethodBase methodBase, object[] argumentValues, LoggingLevel entryLevel)
         {
             var logger = LogManager.GetLogger(methodBase.DeclaringType);
-            if (this.ShouldLog(logger, entryLevel, methodBase))
+            if (ShouldLog(logger, entryLevel, methodBase))
             {
                 var logMessage = new StringBuilder();
                 logMessage.Append(string.Format("{0}(", methodBase.Name));
@@ -47,7 +47,7 @@ namespace SharpArchContrib.Core.Logging
         public void LogException(MethodBase methodBase, Exception err, LoggingLevel exceptionLevel)
         {
             var logger = LogManager.GetLogger(methodBase.DeclaringType);
-            if (this.ShouldLog(logger, exceptionLevel, methodBase))
+            if (ShouldLog(logger, exceptionLevel, methodBase))
             {
                 this.exceptionLogger.LogException(err, false, methodBase.DeclaringType);
             }
@@ -56,16 +56,15 @@ namespace SharpArchContrib.Core.Logging
         public void LogSuccess(MethodBase methodBase, object returnValue, LoggingLevel successLevel)
         {
             var logger = LogManager.GetLogger(methodBase.DeclaringType);
-            if (this.ShouldLog(logger, successLevel, methodBase))
+            if (ShouldLog(logger, successLevel, methodBase))
             {
-                logger.Log(
-                    LoggingLevel.Debug, 
-                    string.Format(
-                        "{0} Returns:[{1}]", methodBase.Name, returnValue != null ? returnValue.ToString() : string.Empty));
+                string message = string.Format(
+                    "{0} Returns:[{1}]", methodBase.Name, returnValue != null ? returnValue.ToString() : string.Empty);
+                logger.Log(LoggingLevel.Debug, message);
             }
         }
 
-        private bool ShouldLog(ILog logger, LoggingLevel loggingLevel, MethodBase methodBase)
+        private static bool ShouldLog(ILog logger, LoggingLevel loggingLevel, MethodBase methodBase)
         {
             if (methodBase != null && methodBase.Name != null)
             {

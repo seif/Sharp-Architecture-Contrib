@@ -1,8 +1,13 @@
 namespace SharpArchContrib.Castle.NHibernate
 {
-    using global::Castle.Core;
+    using System;
 
-    public class UnitOfWorkFacility : AttributeControlledFacilityBase<UnitOfWorkAttribute, UnitOfWorkInterceptor>
+    using global::Castle.Core;
+    using global::Castle.MicroKernel.ModelBuilder;
+
+    using SharpArchContrib.Data.NHibernate;
+
+    public class UnitOfWorkFacility : AttributeControlledFacilityBase<UnitOfWorkAttributeSettings, UnitOfWorkInterceptor>
     {
         public UnitOfWorkFacility()
             : base(LifestyleType.Transient)
@@ -11,7 +16,7 @@ namespace SharpArchContrib.Castle.NHibernate
 
         protected override void AddContributor()
         {
-            this.Kernel.ComponentModelBuilder.AddContributor(new AddLastComponentModelContruction<UnitOfWorkAttribute, UnitOfWorkInterceptor>());
+            this.Kernel.ComponentModelBuilder.AddContributor(new UnitOfWorkComponentInspector());
         }
     }
 }

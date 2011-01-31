@@ -15,6 +15,7 @@
             {
                 return base.Id;
             }
+
             protected set
             {
                 base.Id = value;

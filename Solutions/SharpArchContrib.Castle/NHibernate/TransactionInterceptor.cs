@@ -1,6 +1,7 @@
 namespace SharpArchContrib.Castle.NHibernate
 {
     using System;
+    using System.Reflection;
 
     using global::Castle.DynamicProxy;
 
@@ -12,42 +13,34 @@ namespace SharpArchContrib.Castle.NHibernate
 
     public class TransactionInterceptor : IInterceptor
     {
-        protected readonly IExceptionLogger exceptionLogger;
+        protected readonly IExceptionLogger ExceptionLogger;
+        protected readonly ITransactionManager TransactionManager;
+        private readonly AttributeSettingsStorage<TransactionAttributeSettings> settingsStorage;
 
-        protected readonly ITransactionManager transactionManager;
-
-        public TransactionInterceptor(ITransactionManager transactionManager, IExceptionLogger exceptionLogger)
+        public TransactionInterceptor(ITransactionManager transactionManager, IExceptionLogger exceptionLogger, AttributeSettingsStorage<TransactionAttributeSettings> settingsStorage)
         {
             ParameterCheck.ParameterRequired(transactionManager, "transactionManager");
             ParameterCheck.ParameterRequired(exceptionLogger, "exceptionLogger");
+            ParameterCheck.ParameterRequired(exceptionLogger, "settingsStorage");
 
-            this.transactionManager = transactionManager;
-            this.exceptionLogger = exceptionLogger;
+            this.TransactionManager = transactionManager;
+            this.ExceptionLogger = exceptionLogger;
+            this.settingsStorage = settingsStorage;
         }
 
         public void Intercept(IInvocation invocation)
         {
-            var methodInfo = invocation.MethodInvocationTarget;
-            if (methodInfo == null)
-            {
-                methodInfo = invocation.Method;
-            }
+            var methodInfo = invocation.MethodInvocationTarget ?? invocation.Method;
 
             // we take the settings from the first attribute we find searching method first
             // If there is at least one attribute, the call gets wrapped with a transaction
-            var attributeType = this.GetAttributeType();
-            var classAttributes =
-                (ITransactionAttributeSettings[])methodInfo.ReflectedType.GetCustomAttributes(attributeType, false);
-            var methodAttributes = (ITransactionAttributeSettings[])methodInfo.GetCustomAttributes(attributeType, false);
-            if (classAttributes.Length == 0 && methodAttributes.Length == 0)
+            TransactionAttributeSettings transactionAttributeSettings = GetTransactionAttributeSettings(methodInfo);
+            if (transactionAttributeSettings == null)
             {
                 invocation.Proceed();
             }
             else
             {
-                var transactionAttributeSettings = this.GetTransactionAttributeSettings(
-                    methodAttributes, classAttributes);
-
                 var transactionState = this.OnEntry(transactionAttributeSettings, null);
                 try
                 {
@@ -58,11 +51,11 @@ namespace SharpArchContrib.Castle.NHibernate
                     this.CloseUnitOfWork(transactionAttributeSettings, transactionState, err);
                     if (!(err is AbortTransactionException))
                     {
-                        this.exceptionLogger.LogException(
+                        this.ExceptionLogger.LogException(
                             err, transactionAttributeSettings.IsExceptionSilent, methodInfo.ReflectedType);
                     }
 
-                    if (this.transactionManager.TransactionDepth == 0 &&
+                    if (this.TransactionManager.TransactionDepth == 0 &&
                         (transactionAttributeSettings.IsExceptionSilent || err is AbortTransactionException))
                     {
                         invocation.ReturnValue = transactionAttributeSettings.ReturnValue;
@@ -76,6 +69,11 @@ namespace SharpArchContrib.Castle.NHibernate
             }
         }
 
+        protected virtual TransactionAttributeSettings GetTransactionAttributeSettings(MethodInfo methodInfo)
+        {
+            return this.settingsStorage.GetSettingsForMethod(methodInfo);
+        }
+
         protected virtual object CloseUnitOfWork(
             TransactionAttributeSettings transactionAttributeSettings, object transactionState, Exception err)
         {
@@ -85,49 +83,28 @@ namespace SharpArchContrib.Castle.NHibernate
                 try
                 {
                     NHibernateSession.CurrentFor(factoryKey).Flush();
-                    transactionState = this.transactionManager.CommitTransaction(factoryKey, transactionState);
+                    transactionState = this.TransactionManager.CommitTransaction(factoryKey, transactionState);
                 }
                 catch (Exception)
                 {
-                    transactionState = this.transactionManager.RollbackTransaction(factoryKey, transactionState);
-                    transactionState = this.transactionManager.PopTransaction(factoryKey, transactionState);
+                    transactionState = this.TransactionManager.RollbackTransaction(factoryKey, transactionState);
+                    transactionState = this.TransactionManager.PopTransaction(factoryKey, transactionState);
                     throw;
                 }
             }
             else
             {
-                transactionState = this.transactionManager.RollbackTransaction(factoryKey, transactionState);
+                transactionState = this.TransactionManager.RollbackTransaction(factoryKey, transactionState);
             }
 
-            transactionState = this.transactionManager.PopTransaction(factoryKey, transactionState);
+            transactionState = this.TransactionManager.PopTransaction(factoryKey, transactionState);
 
             return transactionState;
         }
 
-        protected virtual Type GetAttributeType()
-        {
-            return typeof(TransactionAttribute);
-        }
-
-        private TransactionAttributeSettings GetTransactionAttributeSettings(
-            ITransactionAttributeSettings[] methodAttributes, ITransactionAttributeSettings[] classAttributes)
-        {
-            var transactionAttributeSettings = new TransactionAttributeSettings();
-            if (methodAttributes.Length > 0)
-            {
-                transactionAttributeSettings = methodAttributes[methodAttributes.Length - 1].Settings;
-            }
-            else if (classAttributes.Length > 0)
-            {
-                transactionAttributeSettings = classAttributes[classAttributes.Length - 1].Settings;
-            }
-
-            return transactionAttributeSettings;
-        }
-
         private object OnEntry(TransactionAttributeSettings transactionAttributeSettings, object transactionState)
         {
-            return this.transactionManager.PushTransaction(transactionAttributeSettings.FactoryKey, transactionState);
+            return this.TransactionManager.PushTransaction(transactionAttributeSettings.FactoryKey, transactionState);
         }
 
         private object OnSuccess(TransactionAttributeSettings transactionAttributeSettings, object transactionState)

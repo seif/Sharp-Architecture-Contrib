@@ -2,11 +2,11 @@
 {
     using System;
 
+    using global::SharpArchContrib.Data.NHibernate;
+
     using SharpArch.Core.PersistenceSupport;
     using SharpArch.Data.NHibernate;
     using SharpArch.Testing.NUnit;
-
-    using global::SharpArchContrib.Data.NHibernate;
 
     using Tests.DomainModel.Entities;
 

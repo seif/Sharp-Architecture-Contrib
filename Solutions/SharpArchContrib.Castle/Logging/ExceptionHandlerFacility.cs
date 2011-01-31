@@ -5,12 +5,21 @@ namespace SharpArchContrib.Castle.Logging
 
     using global::Castle.Core;
     using global::Castle.MicroKernel;
+    using global::Castle.MicroKernel.ModelBuilder;
 
-    public class ExceptionHandlerFacility : AttributeControlledFacilityBase<ExceptionHandlerAttribute, ExceptionHandlerInterceptor>
+    using SharpArchContrib.Core.Logging;
+
+    public class ExceptionHandlerFacility : AttributeControlledFacilityBase<ExceptionHandlerAttributeSettings, ExceptionHandlerInterceptor>
     {
         public ExceptionHandlerFacility()
             : base(LifestyleType.Singleton)
         {
+        }
+
+        protected override void AddContributor()
+        {
+            this.Kernel.ComponentModelBuilder.AddContributor(
+                new ExceptionHandlerComponentInspector());
         }
     }
 }

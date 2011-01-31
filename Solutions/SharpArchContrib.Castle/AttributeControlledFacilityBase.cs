@@ -12,9 +12,9 @@ namespace SharpArchContrib.Castle
     using SharpArchContrib.Castle.Logging;
     using SharpArchContrib.Core;
 
-    public abstract class AttributeControlledFacilityBase<TAttribute, TInterceptor> : AbstractFacility
+    public abstract class AttributeControlledFacilityBase<TAttSettings, TInterceptor> : AbstractFacility
         where TInterceptor : IInterceptor
-        where TAttribute : Attribute
+        where TAttSettings : class, new()
     {
         private readonly LifestyleType lifestyleType;
 
@@ -25,6 +25,7 @@ namespace SharpArchContrib.Castle
 
         protected override void Init()
         {
+            this.Kernel.Register(Component.For<AttributeSettingsStorage<TAttSettings>>());
             this.RegisterInterceptor();
             this.AddContributor();
         }
@@ -34,9 +35,6 @@ namespace SharpArchContrib.Castle
             this.Kernel.Register(Component.For<TInterceptor>().LifeStyle.Is(this.lifestyleType));
         }
 
-        protected virtual void AddContributor()
-        {
-            this.Kernel.ComponentModelBuilder.AddContributor(new AttributeControlledComponentModelConstruction<TAttribute, TInterceptor>());
-        }
+        protected abstract void AddContributor();
     }
 }

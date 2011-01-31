@@ -169,7 +169,6 @@ namespace Tests.NHibernateTests
         // Tests call Setup and TearDown manually for each iteration of the loop since
         // we want a clean database for each iteration.  We could use the parameterized
         // test feature of Nunit 2.5 but, unfortunately that doesn't work with all test runners (e.g. Resharper)
-
         private bool PerformMultipleOperations(ITransactionTestProvider transactionTestProvider)
         {
             transactionTestProvider.InitTransactionManager();

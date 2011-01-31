@@ -45,7 +45,7 @@
             this.TryLoggingViaProxy();
             File.Exists(this.logPath).ShouldBeTrue();
             var log = this.GetLog();
-            log.IndexOf("testLogger2.GetMessage not logged").ShouldEqual(-1);// non virtual can't be intercepted.
+            log.IndexOf("testLogger2.GetMessage not logged").ShouldEqual(-1); // non virtual can't be intercepted.
             log.IndexOf("testLogger2.GetMessageVirtual logged").ShouldBeGreaterThan(0);
             log.IndexOf("testLogger2.GetMessage not logged").ShouldEqual(-1);
         }
@@ -64,8 +64,7 @@
             var generator = new ProxyGenerator();
             var testLogger2 =
                 generator.CreateClassProxy<TestLogger2>(
-                    new ProxyGenerationOptions(
-                        new AttributeControlledHook<LogAttribute>()),
+                    new ProxyGenerationOptions(),
                     ServiceLocator.Current.GetInstance<LogInterceptor>());
             testLogger2.GetMessage("testLogger2.GetMessage not logged");
             testLogger2.GetMessageVirtual("testLogger2.GetMessageVirtual logged");

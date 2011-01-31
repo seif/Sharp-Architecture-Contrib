@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Reflection;
 
+    using global::Castle.Core;
+
     public class AttributeHelper<T>
         where T : Attribute
     {
@@ -25,6 +27,7 @@
             {
                 attributes.AddRange(GetMethodLevelAttributes(method));
             }
+
             return attributes.ToArray();
         }
 
@@ -33,20 +36,35 @@
             return (T[])methodInfo.GetCustomAttributes(typeof(T), false);
         }
 
-        public static bool ShouldInterceptMethod(MethodInfo methodInfo)
+        /// <summary>
+        /// Adds AttributeSettings for methods in this model to the storage.
+        /// </summary>
+        /// <param name="storage"></param>
+        /// <param name="model"></param>
+        /// <returns>true if the implementation is decorated with the attribute</returns>
+        public static bool PopulateAttributeSettings<TAttSettings>(
+            AttributeSettingsStorage<TAttSettings> storage,
+            ComponentModel model,
+            Func<T[], T[], T[], TAttSettings> getAttributeSettings)
         {
-            bool shouldInterceptMethod = GetAssemblyLevelAttributes(methodInfo.ReflectedType.Assembly).Any() ||
-                                         GetTypeLevelAttributes(methodInfo.ReflectedType).Any() ||
-                                         GetMethodLevelAttributes(methodInfo).Any();
-            return shouldInterceptMethod;
-        }
+            bool shouldAddInterceptor = false;
+            var assemblyAttributes =
+                GetAssemblyLevelAttributes(model.Implementation.Assembly);
+            var classAttributes =
+                GetTypeLevelAttributes(model.Implementation);
+            foreach (var method in model.Implementation.GetMethods())
+            {
+                T[] methodAttributes = GetMethodLevelAttributes(method);
+                
+                if (assemblyAttributes.Length > 0 || classAttributes.Length > 0 || methodAttributes.Length > 0)
+                {
+                    shouldAddInterceptor = true;
+                    TAttSettings attSettings = getAttributeSettings(assemblyAttributes, classAttributes, methodAttributes);
+                    storage.RegisterSettings(method, attSettings);
+                }
+            }
 
-        public static bool ShouldInterceptType(Type service)
-        {
-            bool shouldInterceptType = GetAssemblyLevelAttributes(service.Assembly).Any() || 
-                                       GetTypeLevelAttributes(service).Any() ||
-                                       GetMethodLevelAttributesForType(service).Any();
-            return shouldInterceptType;
+            return shouldAddInterceptor;
         }
     }
 }
